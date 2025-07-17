@@ -149,12 +149,18 @@ export const POST: RequestHandler = async ({ request }) => {
 		
 		const lyrics = await generateLyricsWithGoogleAI(emotions, keywords, language);
 		
+		// Generate a title from the first line of lyrics
+		const firstLine = lyrics.split('\n')[0];
+		const title = firstLine.length > 40 ? firstLine.substring(0, 40) + '...' : firstLine;
+		
 		return json({
 			success: true,
 			lyrics,
 			emotions,
 			keywords,
-			language
+			language,
+			title,
+			timestamp: new Date().toISOString()
 		});
 	} catch (error) {
 		console.error('Error in lyrics generation:', error);

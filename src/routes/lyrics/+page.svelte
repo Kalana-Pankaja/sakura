@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { addToHistory } from '$lib/stores/history';
 	
 	let emotions: string[] = [];
 	let keywords = '';
@@ -53,6 +54,15 @@
 			
 			const data = await response.json();
 			lyrics = data.lyrics;
+			
+			// Save to history
+			addToHistory({
+				title: data.title || lyrics.split('\n')[0] || 'Untitled',
+				lyrics: data.lyrics,
+				emotions: emotions,
+				keywords: keywords,
+				language: lyricsLanguage
+			});
 		} catch (err) {
 			error = 'Failed to generate lyrics. Please try again.';
 			console.error('Error:', err);

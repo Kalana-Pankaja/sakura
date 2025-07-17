@@ -1,33 +1,35 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { historyStore, clearHistory, removeFromHistory, getHistoryStats, type HistoryItem } from '$lib/stores/history';
 
-	let creations = [
-		{
-			id: 1,
-			title: "Memories of Tomorrow",
-			emotions: ["Nostalgia", "Hope"],
-			language: "English",
-			dateCreated: "2024-01-15",
-			excerpt: "In the garden of my mind, where yesterdays bloom bright..."
-		},
-		{
-			id: 2,
-			title: "සිහිනෙන් සැඟවුණු",
-			emotions: ["Love", "Sadness"],
-			language: "Sinhala",
-			dateCreated: "2024-01-12",
-			excerpt: "සිහිනෙන් සැඟවුණු මා හදේ කතාව..."
-		},
-		{
-			id: 3,
-			title: "கனவுகள் நிறைந்த",
-			emotions: ["Joy", "Excitement"],
-			language: "Tamil",
-			dateCreated: "2024-01-10",
-			excerpt: "கனவுகள் நிறைந்த மனதின் பாடல்..."
+	let creations: HistoryItem[] = [];
+	let stats = {
+		totalSongs: 0,
+		languagesUsed: 0,
+		favoriteEmotion: 'None',
+		thisWeek: 0,
+		thisMonth: 0
+	};
+
+	onMount(() => {
+		historyStore.subscribe(history => {
+			creations = history;
+			stats = getHistoryStats(history);
+		});
+	});
+
+	function handleClearHistory() {
+		if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
+			clearHistory();
 		}
-	];
+	}
+
+	function handleRemoveItem(id: string) {
+		if (confirm('Are you sure you want to remove this item from history?')) {
+			removeFromHistory(id);
+		}
+	}
 
 	function formatDate(dateString: string) {
 		const date = new Date(dateString);
@@ -40,10 +42,22 @@
 
 	function getLanguageFlag(language: string) {
 		switch(language) {
+			case 'en': 
 			case 'English': return '🇺🇸';
+			case 'si':
 			case 'Sinhala': return '🇱🇰';
+			case 'ta':
 			case 'Tamil': return '🇱🇰';
 			default: return '🌐';
+		}
+	}
+
+	function getLanguageName(language: string) {
+		switch(language) {
+			case 'en': return 'English';
+			case 'si': return 'Sinhala';
+			case 'ta': return 'Tamil';
+			default: return language;
 		}
 	}
 </script>
@@ -62,8 +76,18 @@
 		<div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
 			<div class="flex items-center justify-between mb-6">
 				<h2 class="text-xl font-semibold text-gray-800">Recent Creations</h2>
-				<div class="text-sm text-gray-500">
-					{creations.length} total creations
+				<div class="flex items-center space-x-4">
+					<div class="text-sm text-gray-500">
+						{creations.length} total creations
+					</div>
+					{#if creations.length > 0}
+						<button
+							on:click={handleClearHistory}
+							class="px-3 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+						>
+							Clear All
+						</button>
+					{/if}
 				</div>
 			</div>
 
@@ -99,18 +123,24 @@
 									<p class="text-gray-600 text-sm mb-3 italic">"{creation.excerpt}"</p>
 									<div class="flex items-center text-xs text-gray-500">
 										<span class="mr-4">📅 {formatDate(creation.dateCreated)}</span>
-										<span class="mr-4">🌐 {creation.language}</span>
+										<span class="mr-4">🌐 {getLanguageName(creation.language)}</span>
+										{#if creation.keywords}
+											<span class="mr-4">🔍 {creation.keywords}</span>
+										{/if}
 									</div>
 								</div>
 								<div class="flex space-x-2 ml-4">
-									<button class="px-4 py-2 text-sm text-gray-600 hover:text-rose-600 transition-colors">
+									<button 
+										class="px-4 py-2 text-sm text-gray-600 hover:text-rose-600 transition-colors"
+										on:click={() => alert(creation.lyrics)}
+									>
 										View
 									</button>
-									<button class="px-4 py-2 text-sm text-gray-600 hover:text-rose-600 transition-colors">
-										Edit
-									</button>
-									<button class="px-4 py-2 text-sm text-gray-600 hover:text-rose-600 transition-colors">
-										Share
+									<button 
+										class="px-4 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
+										on:click={() => handleRemoveItem(creation.id)}
+									>
+										Delete
 									</button>
 								</div>
 							</div>
@@ -131,9 +161,9 @@
 				<div class="text-rose-500 text-3xl mb-3">📊</div>
 				<h3 class="text-lg font-semibold text-gray-800 mb-2">Statistics</h3>
 				<div class="space-y-2 text-sm text-gray-600">
-					<div>Total Songs: <span class="font-semibold">{creations.length}</span></div>
-					<div>Languages Used: <span class="font-semibold">3</span></div>
-					<div>Favorite Emotion: <span class="font-semibold">Love</span></div>
+					<div>Total Songs: <span class="font-semibold">{stats.totalSongs}</span></div>
+					<div>Languages Used: <span class="font-semibold">{stats.languagesUsed}</span></div>
+					<div>Favorite Emotion: <span class="font-semibold">{stats.favoriteEmotion}</span></div>
 				</div>
 			</div>
 
@@ -151,9 +181,9 @@
 				<div class="text-rose-500 text-3xl mb-3">📈</div>
 				<h3 class="text-lg font-semibold text-gray-800 mb-2">Progress</h3>
 				<div class="space-y-2 text-sm text-gray-600">
-					<div>This Week: <span class="font-semibold">2 songs</span></div>
-					<div>This Month: <span class="font-semibold">5 songs</span></div>
-					<div>Total Time: <span class="font-semibold">2.5 hours</span></div>
+					<div>This Week: <span class="font-semibold">{stats.thisWeek} songs</span></div>
+					<div>This Month: <span class="font-semibold">{stats.thisMonth} songs</span></div>
+					<div>Total Created: <span class="font-semibold">{stats.totalSongs} songs</span></div>
 				</div>
 			</div>
 		</div>
