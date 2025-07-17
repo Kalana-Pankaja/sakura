@@ -1,0 +1,432 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+:root {
+  /* Light mode colors - soft cherry blossom palette */
+  --bg-primary: #fef7f0;
+  --bg-secondary: #ffffff;
+  --bg-gradient-start: #fef1f7;
+  --bg-gradient-end: #ffffff;
+  
+  --text-primary: #2d3748;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  
+  --rose-soft: #f7fafc;
+  --rose-light: #fed7e2;
+  --rose-medium: #fbb6ce;
+  --rose-deep: #f687b3;
+  --rose-accent: #ed64a6;
+  --blush-pink: #e53e3e;
+  
+  --shadow-soft: rgba(237, 100, 166, 0.08);
+  --shadow-medium: rgba(237, 100, 166, 0.15);
+  --shadow-strong: rgba(237, 100, 166, 0.25);
+  
+  --border-subtle: rgba(237, 100, 166, 0.1);
+  --border-medium: rgba(237, 100, 166, 0.2);
+  
+  --focus-ring: rgba(237, 100, 166, 0.3);
+}
+
+[data-theme="dark"] {
+  /* Dark mode colors - charcoal with pink accents */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-gradient-start: #1a1a1a;
+  --bg-gradient-end: #2d2d2d;
+  
+  --text-primary: #f7fafc;
+  --text-secondary: #e2e8f0;
+  --text-muted: #a0aec0;
+  
+  --rose-soft: #2d3748;
+  --rose-light: #4a5568;
+  --rose-medium: #ed64a6;
+  --rose-deep: #f687b3;
+  --rose-accent: #fbb6ce;
+  --blush-pink: #fed7e2;
+  
+  --shadow-soft: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(0, 0, 0, 0.5);
+  --shadow-strong: rgba(0, 0, 0, 0.7);
+  
+  --border-subtle: rgba(237, 100, 166, 0.2);
+  --border-medium: rgba(237, 100, 166, 0.3);
+  
+  --focus-ring: rgba(237, 100, 166, 0.4);
+}
+
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.title-gradient {
+  background: linear-gradient(135deg, var(--rose-accent), var(--rose-deep));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Buttons - pill-shaped with smooth animations */
+.sakura-button {
+  background: linear-gradient(135deg, var(--rose-medium), var(--rose-accent));
+  color: white;
+  border-radius: 9999px;
+  padding: 0.875rem 2rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.025em;
+  box-shadow: 0 4px 20px var(--shadow-soft);
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sakura-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.sakura-button:hover::before {
+  left: 100%;
+}
+
+.sakura-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--shadow-medium);
+  background: linear-gradient(135deg, var(--rose-accent), var(--rose-deep));
+}
+
+.sakura-button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px var(--shadow-soft);
+}
+
+.sakura-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cards - soft shadows and rounded corners */
+.sakura-card {
+  background: var(--bg-secondary);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 10px 40px var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.sakura-card:hover {
+  box-shadow: 0 20px 60px var(--shadow-medium);
+  transform: translateY(-4px);
+}
+
+/* Poetry card for lyrics */
+.poetry-card {
+  background: var(--bg-secondary);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 15px 50px var(--shadow-soft);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.poetry-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--rose-light), var(--rose-medium), var(--rose-accent));
+}
+
+.poetry-text {
+  font-family: 'Georgia', serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  letter-spacing: 0.01em;
+}
+
+/* Input forms - rounded and welcoming */
+.sakura-input {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  width: 100%;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.sakura-input:focus {
+  border-color: var(--rose-medium);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  transform: scale(1.01);
+}
+
+.sakura-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.sakura-textarea {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  transition: all 0.3s ease;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.sakura-textarea:focus {
+  border-color: var(--rose-medium);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  transform: scale(1.005);
+}
+
+.sakura-textarea::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* Card-based components */
+.card-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid var(--border-subtle);
+  border-radius: 1rem;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-width: 100px;
+}
+
+.card-button:hover {
+  border-color: var(--rose-light);
+  background: var(--rose-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-soft);
+}
+
+.card-button.selected {
+  border-color: var(--rose-medium);
+  background: var(--rose-light);
+  box-shadow: 0 4px 15px var(--shadow-medium);
+}
+
+.card-button .emoji {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-button .label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.card-button.selected .label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Form card layout */
+.form-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.form-card:hover {
+  border-color: var(--rose-light);
+  box-shadow: 0 4px 12px var(--shadow-soft);
+}
+
+.form-card.focused {
+  border-color: var(--rose-medium);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Section cards */
+.section-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 40px var(--shadow-soft);
+  transition: all 0.3s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 15px 50px var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+/* Button cards */
+.button-card {
+  background: linear-gradient(135deg, var(--rose-medium), var(--rose-accent));
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--shadow-soft);
+  min-width: 150px;
+}
+
+.button-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--shadow-medium);
+  background: linear-gradient(135deg, var(--rose-accent), var(--rose-deep));
+}
+
+.button-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Header and Footer */
+.sakura-header {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+[data-theme="dark"] .sakura-header {
+  background: rgba(26, 26, 26, 0.9);
+  backdrop-filter: blur(20px);
+}
+
+.sakura-footer {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-subtle);
+}
+
+[data-theme="dark"] .sakura-footer {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(20px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(180deg); }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.6s ease-out;
+}
+
+.floating-petal {
+  animation: float 8s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+/* Sakura petals background */
+.sakura-petals {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Loading spinner */
+.sakura-spinner {
+  border: 3px solid var(--rose-light);
+  border-top: 3px solid var(--rose-accent);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sakura-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .poetry-card {
+    padding: 2rem;
+  }
+  
+  .poetry-text {
+    font-size: 1rem;
+  }
+}
