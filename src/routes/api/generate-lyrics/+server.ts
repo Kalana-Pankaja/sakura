@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { GOOGLE_AI_STUDIO_API_KEY } from '$env/static/private';
 
 const demoLyrics: Record<string, Record<string, string[]>> = {
 	'Joy': {
@@ -60,7 +61,55 @@ const demoLyrics: Record<string, Record<string, string[]>> = {
 	}
 };
 
-const generateLyricsFromEmotions = (emotions: string[], keywords: string, language: string = 'en'): string => {
+const generateLyricsWithGoogleAI = async (emotions: string[], keywords: string, language: string = 'en'): Promise<string> => {
+	if (!GOOGLE_AI_STUDIO_API_KEY) {
+		throw new Error('Google AI Studio API key not configured');
+	}
+
+	const languageMap = {
+		'en': 'English',
+		'si': 'Sinhala',
+		'ta': 'Tamil'
+	};
+
+	const prompt = `Generate song lyrics in ${languageMap[language] || 'English'} based on these emotions: ${emotions.join(', ')}${keywords ? ` and keywords: ${keywords}` : ''}. 
+	Create 2-3 verses that capture the essence of these emotions. Make the lyrics poetic and meaningful.`;
+
+	try {
+		const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_STUDIO_API_KEY}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				contents: [{
+					parts: [{
+						text: prompt
+					}]
+				}]
+			})
+		});
+
+		if (!response.ok) {
+			throw new Error(`API request failed: ${response.status}`);
+		}
+
+		const data = await response.json();
+		const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+		
+		if (!generatedText) {
+			throw new Error('No content generated from AI');
+		}
+
+		return generatedText;
+	} catch (error) {
+		console.error('Error generating lyrics with Google AI:', error);
+		// Fallback to demo lyrics if API fails
+		return generateDemoLyrics(emotions, keywords, language);
+	}
+};
+
+const generateDemoLyrics = (emotions: string[], keywords: string, language: string = 'en'): string => {
 	const selectedEmotion = emotions[0] || 'Joy';
 	const emotionLyrics = demoLyrics[selectedEmotion]?.[language] || demoLyrics['Joy'][language] || demoLyrics['Joy']['en'];
 	let lyrics = emotionLyrics[Math.floor(Math.random() * emotionLyrics.length)];
@@ -98,10 +147,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const { emotions, keywords, language } = await request.json();
 		
-		// Simulate API delay
-		await new Promise(resolve => setTimeout(resolve, 1500));
-		
-		const lyrics = generateLyricsFromEmotions(emotions, keywords, language);
+		const lyrics = await generateLyricsWithGoogleAI(emotions, keywords, language);
 		
 		return json({
 			success: true,
@@ -111,6 +157,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			language
 		});
 	} catch (error) {
+		console.error('Error in lyrics generation:', error);
 		return json({
 			success: false,
 			error: 'Failed to generate lyrics'
