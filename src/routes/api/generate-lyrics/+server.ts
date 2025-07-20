@@ -66,11 +66,11 @@ const generateLyricsWithGoogleAI = async (emotions: string[], keywords: string, 
 		throw new Error('Google AI Studio API key not configured');
 	}
 
-	const languageMap = {
-		'en': 'English',
-		'si': 'Sinhala',
-		'ta': 'Tamil'
-	};
+	const languageMap: { [key: string]: string } = {
+    'en': 'English',
+    'si': 'Sinhala',
+    'ta': 'Tamil'
+};
 
 	const prompt = `Generate song lyrics in ${languageMap[language] || 'English'} based on these emotions: ${emotions.join(', ')}${keywords ? ` and keywords: ${keywords}` : ''}. 
 	Create 2-3 verses that capture the essence of these emotions. Make the lyrics poetic and meaningful.`;
@@ -127,7 +127,7 @@ const generateDemoLyrics = (emotions: string[], keywords: string, language: stri
 				'ta': `\n\n${randomKeyword} காற்றில் கிசுகிசுக்கும் சத்தம்\nநினைவுகளை எளிதாக கொண்டு வருகிறது\nஇந்த நேரத்தில் நான் நம்புகிறேன்\nநாம் அடைய முடிந்த எல்லா கனவுகளையும்`
 			};
 			
-			lyrics += keywordVerses[language] || keywordVerses['en'];
+			lyrics += keywordVerses[language as 'en' | 'si' | 'ta'] || keywordVerses['en'];
 		}
 	}
 	
