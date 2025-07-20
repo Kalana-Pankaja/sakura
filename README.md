@@ -166,7 +166,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [SvelteKit](https://kit.svelte.dev/)
 - Styled with [Tailwind CSS](https://tailwindcss.com/)
-- AI audio generation powered by [GoAPI.ai](https://goapi.ai/)
 - Icons and emojis for enhanced user experience
 
 ## ⏭️ Futher developments
