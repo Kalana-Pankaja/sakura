@@ -169,6 +169,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - AI audio generation powered by [GoAPI.ai](https://goapi.ai/)
 - Icons and emojis for enhanced user experience
 
+## ⏭️ Futher developments
+
+- The product is made until the audio generate but the SUNO AI but the lyrics are generate via Claude AI tools . Due to the fact that we need addditional licensing issues and also need to pay to get those API accessing that part of the software is not currently working. But all the code development that need to integrate suno Ai is coded in the dev-chanith branch and you can refer that part on it.
+- Futher the downloading ability of files needs to be added after audio generation
 ---
 
 **Transform your emotions into music with Sakura 🌸**
