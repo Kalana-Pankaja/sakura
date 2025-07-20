@@ -52,7 +52,7 @@ async function generateAudio(prompt: string, taskId: string): Promise<void> {
 			customMode: true,
 			instrumental: false, // false to allow lyrics-based generation
 			model: "V3_5",
-			callBackUrl: `https://6899e2cfcd2f.ngrok-free.app/api/song-status/${taskId}` // Replace this with your real endpoint
+			callBackUrl: `https://6899e2cfcd2f.ngrok-free.app/api/song-status/${taskId}` 
 		};
 
 		const result = await callSunoApi(`/api/song-status/${taskId}`, data);

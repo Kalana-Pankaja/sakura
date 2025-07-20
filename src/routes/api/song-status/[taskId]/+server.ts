@@ -1,8 +1,7 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 
-
-// Ideally, this should be imported from a shared module
+// This file handles the song status updates from the Suno API
 const songTasks: Record<string, {
 	status: 'pending' | 'completed' | 'failed',
 	songUrl?: string,
