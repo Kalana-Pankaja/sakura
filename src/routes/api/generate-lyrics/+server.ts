@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { GOOGLE_AI_STUDIO_API_KEY } from '$env/static/private';
+import { GOOGLE_API_KEY } from '$env/static/private';
 
 const demoLyrics: Record<string, Record<string, string[]>> = {
 	'Joy': {
@@ -62,8 +62,8 @@ const demoLyrics: Record<string, Record<string, string[]>> = {
 };
 
 const generateLyricsWithGoogleAI = async (emotions: string[], keywords: string, language: string = 'en'): Promise<string> => {
-	if (!GOOGLE_AI_STUDIO_API_KEY) {
-		throw new Error('Google AI Studio API key not configured');
+	if (!GOOGLE_API_KEY) {
+		throw new Error('Google API key not configured');
 	}
 
 	const languageMap = {
@@ -76,7 +76,7 @@ const generateLyricsWithGoogleAI = async (emotions: string[], keywords: string, 
 	Create 2-3 verses that capture the essence of these emotions. Make the lyrics poetic and meaningful.`;
 
 	try {
-		const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_STUDIO_API_KEY}`, {
+		const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_API_KEY}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

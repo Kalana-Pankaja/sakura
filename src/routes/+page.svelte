@@ -90,8 +90,8 @@
 			</div>
 			<div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 text-center">
 				<div class="text-rose-500 text-xl mb-2">🎧</div>
-				<h3 class="font-semibold text-gray-800 mb-1 text-sm">Audio Generation</h3>
-				<p class="text-gray-600 text-xs">Transform your lyrics into beautiful music</p>
+				<h3 class="font-semibold text-gray-800 mb-1 text-sm">Suno AI Music</h3>
+				<p class="text-gray-600 text-xs">Transform your lyrics into beautiful music with Suno AI</p>
 			</div>
 		</div>
 	</div>

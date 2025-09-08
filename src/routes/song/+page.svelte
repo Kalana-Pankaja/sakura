@@ -36,7 +36,7 @@
 		isGenerating = true;
 		error = '';
 		songUrl = '';
-		generationStatus = 'Analyzing lyrics...';
+		generationStatus = 'Connecting to Suno AI...';
 		
 		try {
 			const response = await fetch('/api/generate-song', {
@@ -59,6 +59,7 @@
 			const data = await response.json();
 			
 			if (data.taskId) {
+				generationStatus = 'Song generation started with Suno AI...';
 				// Poll for completion
 				await pollSongGeneration(data.taskId);
 			} else {
@@ -74,12 +75,12 @@
 	}
 	
 	async function pollSongGeneration(taskId: string) {
-		const maxAttempts = 30;
+		const maxAttempts = 60; // Increased for Suno API (up to 2 minutes)
 		let attempts = 0;
 		
 		while (attempts < maxAttempts) {
 			try {
-				generationStatus = `Generating song... (${attempts + 1}/30)`;
+				generationStatus = `Suno AI is creating your song... (${attempts + 1}/60)`;
 				
 				const response = await fetch(`/api/song-status/${taskId}`);
 				const data = await response.json();
@@ -99,7 +100,7 @@
 		}
 		
 		if (attempts >= maxAttempts) {
-			throw new Error('Song generation timed out');
+			throw new Error('Song generation timed out. Suno AI may be busy, please try again later.');
 		}
 	}
 	
@@ -157,8 +158,11 @@
 						on:click={generateSong}
 						class="button-card"
 					>
-						Generate AI Song 🎼
+						🎵 Generate Music with Suno AI 🎵
 					</button>
+					<p class="text-sm mt-3" style="color: var(--text-muted);">
+						Powered by Suno AI - Creating personalized music from your lyrics
+					</p>
 				</div>
 			{/if}
 			
@@ -166,7 +170,7 @@
 				<div class="text-center py-12">
 					<div class="sakura-spinner mb-6"></div>
 					<p class="text-lg font-light" style="color: var(--text-secondary);">{generationStatus}</p>
-					<p class="text-sm mt-2" style="color: var(--text-muted);">This may take a few minutes...</p>
+					<p class="text-sm mt-2" style="color: var(--text-muted);">Suno AI is creating your personalized song... This may take 2-5 minutes.</p>
 				</div>
 			{/if}
 			
