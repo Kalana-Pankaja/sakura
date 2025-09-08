@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { GOOGLE_API_KEY } from '$env/static/private';
+import { OPENAI_API_KEY, GOOGLE_API_KEY, CLAUDE_COOKIE } from '$env/static/private';
+import OpenAI from 'openai';
+import { Client as ClaudeClient } from 'claude-api';
 
 const demoLyrics: Record<string, Record<string, string[]>> = {
 	'Joy': {
@@ -58,6 +60,104 @@ const demoLyrics: Record<string, Record<string, string[]>> = {
 			'நாளை ஒரு புதிய நாள் கொண்டு வருகிறது\nஎன் எல்லா பயங்களும் மறைந்து விடும்\nநட்சத்திரங்கள் இரவு முழுவதும் என்னை வழிநடத்தும்\nகாலை வெளிச்சத்திற்கு இட்டுச் செல்லும்',
 			'இருண்ட நேரத்திலும் கூட\nநம்பிக்கையின் மென்மையான சக்தியை உணர முடிகிறது\nவிடியலை சந்திக்க எழுந்து கொண்டிருக்கிறேன்\nதொடர்ந்து செல்ல வலிமை'
 		]
+	}
+};
+
+const generateLyricsWithOpenAI = async (emotions: string[], keywords: string, language: string = 'en'): Promise<string> => {
+	if (!OPENAI_API_KEY) {
+		throw new Error('OpenAI API key not configured');
+	}
+
+	const openai = new OpenAI({
+		apiKey: OPENAI_API_KEY,
+	});
+
+	const languageMap: Record<string, string> = {
+		'en': 'English',
+		'si': 'Sinhala (සිංහල)',
+		'ta': 'Tamil (தமிழ்)'
+	};
+
+	const languageName = languageMap[language] || 'English';
+	const emotionText = emotions.length > 0 ? emotions.join(', ') : 'general positive emotions';
+	const keywordText = keywords ? ` about ${keywords}` : '';
+
+	const prompt = `Create beautiful, emotional song lyrics in ${languageName} language. 
+	The lyrics should express ${emotionText}${keywordText}. 
+	Make it heartfelt, poetic, and suitable for music. 
+	Include verses and a chorus. 
+	Keep it between 4-8 lines total.
+	Format the response as clean lyrics without any explanations or metadata.
+	If generating in Sinhala, use proper Sinhala script. If generating in Tamil, use proper Tamil script.`;
+
+	try {
+		const completion = await openai.chat.completions.create({
+			model: "gpt-4",
+			messages: [
+				{
+					role: "system",
+					content: "You are a talented songwriter who creates beautiful, emotional lyrics in multiple languages. Always respond with clean lyrics without any explanations or metadata."
+				},
+				{
+					role: "user",
+					content: prompt
+				}
+			],
+			max_tokens: 500,
+			temperature: 0.8
+		});
+
+		if (completion.choices && completion.choices[0] && completion.choices[0].message) {
+			return completion.choices[0].message.content?.trim() || '';
+		} else {
+			throw new Error('Invalid response format from OpenAI');
+		}
+	} catch (error) {
+		console.error('Error generating lyrics with OpenAI:', error);
+		return generateDemoLyrics(emotions, keywords, language);
+	}
+};
+
+const generateLyricsWithClaude = async (emotions: string[], keywords: string, language: string = 'en'): Promise<string> => {
+	if (!CLAUDE_COOKIE) {
+		throw new Error('Claude cookie not configured');
+	}
+
+	const claude = new ClaudeClient(CLAUDE_COOKIE);
+
+	const languageMap: Record<string, string> = {
+		'en': 'English',
+		'si': 'Sinhala (සිංහල)',
+		'ta': 'Tamil (தமிழ்)'
+	};
+
+	const languageName = languageMap[language] || 'English';
+	const emotionText = emotions.length > 0 ? emotions.join(', ') : 'general positive emotions';
+	const keywordText = keywords ? ` about ${keywords}` : '';
+
+	const prompt = `Create beautiful, emotional song lyrics in ${languageName} language. 
+	The lyrics should express ${emotionText}${keywordText}. 
+	Make it heartfelt, poetic, and suitable for music. 
+	Include verses and a chorus. 
+	Keep it between 4-8 lines total.
+	Format the response as clean lyrics without any explanations or metadata.
+	If generating in Sinhala, use proper Sinhala script. If generating in Tamil, use proper Tamil script.`;
+
+	try {
+		// Create a new chat for this request
+		const newChat = await claude.create_new_chat();
+		const conversationId = newChat.uuid;
+
+		// Send the message to Claude
+		const response = await claude.send_message(prompt, conversationId, undefined, 300);
+
+		// Clean up the conversation
+		await claude.delete_conversation(conversationId);
+
+		return response.trim();
+	} catch (error) {
+		console.error('Error generating lyrics with Claude:', error);
+		return generateDemoLyrics(emotions, keywords, language);
 	}
 };
 
@@ -147,7 +247,30 @@ export const POST: RequestHandler = async ({ request }) => {
 	try {
 		const { emotions, keywords, language } = await request.json();
 		
-		const lyrics = await generateLyricsWithGoogleAI(emotions, keywords, language);
+		// Try OpenAI first, then Claude, then Google AI, then demo lyrics
+		let lyrics: string;
+		let generatedBy = 'demo';
+		
+		try {
+			lyrics = await generateLyricsWithOpenAI(emotions, keywords, language);
+			generatedBy = 'OpenAI';
+		} catch (openaiError) {
+			console.log('OpenAI failed, trying Claude:', openaiError);
+			try {
+				lyrics = await generateLyricsWithClaude(emotions, keywords, language);
+				generatedBy = 'Claude';
+			} catch (claudeError) {
+				console.log('Claude failed, trying Google AI:', claudeError);
+				try {
+					lyrics = await generateLyricsWithGoogleAI(emotions, keywords, language);
+					generatedBy = 'Google AI';
+				} catch (googleError) {
+					console.log('Google AI failed, using demo lyrics:', googleError);
+					lyrics = generateDemoLyrics(emotions, keywords, language);
+					generatedBy = 'demo';
+				}
+			}
+		}
 		
 		// Generate a title from the first line of lyrics
 		const firstLine = lyrics.split('\n')[0];
@@ -160,7 +283,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			keywords,
 			language,
 			title,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
+			generatedBy: generatedBy
 		});
 	} catch (error) {
 		console.error('Error in lyrics generation:', error);

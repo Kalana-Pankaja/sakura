@@ -11,6 +11,7 @@
 	let error = '';
 	let generationStatus = '';
 	let lyricsLanguage = 'en';
+	let lyricsGeneratedBy = '';
 	
 	onMount(() => {
 		const urlEmotions = $page.url.searchParams.get('emotions');
